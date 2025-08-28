@@ -11,9 +11,9 @@ $token = $_ENV['GITHUB_TOKEN'];
 $repos = json_decode(file_get_contents(__DIR__ . '/../config/repos_prs.json'), true);
 
 $githubAudit = new GithubPRAudit($token, $repos);
-$auditData = $githubAudit->fetchAuditData();
+$auditDataCollection = $githubAudit->fetchAuditData();
 
 $exporter = new CsvExporter(__DIR__ . '/files_audit.csv');
-$exporter->export($auditData);
+$exporter->export($auditDataCollection);
 
 echo "CSV audit saved to files_audit.csv\n";
