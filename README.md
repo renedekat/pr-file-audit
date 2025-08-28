@@ -29,18 +29,18 @@ This PHP project generates a CSV audit of all files modified across specified Gi
 
 ## Configure environment variables
 ```bash
-  cp .env.example .env
+  cp ./config/.env.example ./config/.env
 ```
 
 Edit .env and set your GitHub token:
 `GITHUB_TOKEN=your_personal_access_token`
 
 ## Prepare the repositories/PRs list
-```bash
-  cp repos_prs.json.example repos_prs.json
+```bash  
+  cp ./config/repos_prs.json.example ./config/repos_prs.json
 ```
 
-Edit repos_prs.json with your repository names and PR numbers in the following format:
+Edit `./config/repos_prs.json` with your repository names and PR numbers in the following format:
 ```
 {
     "org/repo1": [12, 34],

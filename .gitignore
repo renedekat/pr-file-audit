@@ -3,7 +3,7 @@
 /composer.lock
 
 # Environment variables
-.env
+config/.env
 .env.local
 .env.*.local
 
@@ -25,7 +25,7 @@ cache/
 
 # Generated files
 files_audit.csv
-repos_prs.json
+config/repos_prs.json
 
 # Ignore composer PHAR if committed locally
 composer.phar
