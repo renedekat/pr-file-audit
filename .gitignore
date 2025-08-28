@@ -1,0 +1,31 @@
+# Composer dependencies
+/vendor/
+/composer.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs / Editors
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Logs and temporary files
+*.log
+*.cache
+tmp/
+cache/
+
+# Generated files
+files_audit.csv
+repos_prs.json
+
+# Ignore composer PHAR if committed locally
+composer.phar
