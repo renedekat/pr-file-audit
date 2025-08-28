@@ -2,6 +2,8 @@
 
 namespace Service;
 
+use DTO\FileAuditCollection;
+
 class CsvExporter
 {
     private string $filename;
@@ -11,13 +13,15 @@ class CsvExporter
         $this->filename = $filename;
     }
 
-    public function export(array $auditData): void
+    public function export(FileAuditCollection $collection): void
     {
         $handle = fopen($this->filename, 'w');
 
+        $items = $collection->toArray();
+
         // Determine max contributors for header
         $maxContributors = 0;
-        foreach ($auditData as $dto) {
+        foreach ($items as $dto) {
             $maxContributors = max($maxContributors, count($dto->contributors));
         }
 
@@ -26,11 +30,15 @@ class CsvExporter
         fputcsv($handle, $header, ',', '"', '\\');
 
         // Rows
-        foreach ($auditData as $dto) {
+        foreach ($items as $dto) {
             $row = array_merge([$dto->repo, $dto->filename], $dto->contributors);
+
+            // Fill empty columns if some files have fewer contributors
+            $row = array_pad($row, 2 + $maxContributors, '');
             fputcsv($handle, $row, ',', '"', '\\');
         }
 
         fclose($handle);
     }
+
 }

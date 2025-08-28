@@ -2,6 +2,7 @@
 
 namespace Service;
 
+use DTO\FileAuditCollection;
 use GuzzleHttp\Client;
 use DTO\FileAuditDto;
 
@@ -24,20 +25,20 @@ class GithubPRAudit
         ]);
     }
 
-    public function fetchAuditData(): array
+    public function fetchAuditData(): FileAuditCollection
     {
-        $auditData = [];
+        $collection = new FileAuditCollection();
 
         foreach ($this->repos as $repoFullName => $prNumbers) {
             foreach ($prNumbers as $prNumber) {
-                $this->processPullRequest($repoFullName, $prNumber, $auditData);
+                $this->processPullRequest($repoFullName, $prNumber, $collection);
             }
         }
 
-        return $auditData;
+        return $collection;
     }
 
-    private function processPullRequest(string $repoFullName, int $prNumber, array &$auditData): void
+    private function processPullRequest(string $repoFullName, int $prNumber, FileAuditCollection $collection): void
     {
         if (!$this->isMerged($repoFullName, $prNumber)) {
             return; // Skip unmerged PRs
@@ -47,7 +48,8 @@ class GithubPRAudit
         $contributors = $this->getPullRequestContributors($repoFullName, $prNumber);
 
         foreach ($files as $filename) {
-            $this->addOrMergeAuditData($repoFullName, $filename, $contributors, $auditData);
+            $collection->add(new FileAuditDto($repoFullName, $filename, $contributors));
+
         }
     }
 
@@ -57,20 +59,6 @@ class GithubPRAudit
         $prData = json_decode($response->getBody()->getContents(), true);
         return !empty($prData['merged']);
     }
-
-    private function addOrMergeAuditData(string $repoFullName, string $filename, array $contributors, array &$auditData): void
-    {
-        foreach ($auditData as $dto) {
-            if ($dto->repo === $repoFullName && $dto->filename === $filename) {
-                $dto->contributors = array_unique(array_merge($dto->contributors, $contributors));
-                return;
-            }
-        }
-
-        // No existing DTO found, create a new one
-        $auditData[] = new FileAuditDto($repoFullName, $filename, $contributors);
-    }
-
 
     private function getPullRequestFiles(string $repo, int $pr): array
     {
@@ -86,8 +74,15 @@ class GithubPRAudit
 
         $contributors = [];
         foreach ($commits as $commit) {
-            if (isset($commit['author']['login'])) {
+            // Prefer GitHub login if available
+            if (!empty($commit['author']['login'])) {
                 $contributors[$commit['author']['login']] = true;
+            } else {
+                // fallback to commit author name (works for merged PRs)
+                $name = $commit['commit']['author']['email'] ?? null;
+                if ($name) {
+                    $contributors[$name] = true;
+                }
             }
         }
 
