@@ -6,7 +6,11 @@
   "autoload": {
     "psr-4": {
       "Service\\": "src/Service/",
-      "DTO\\": "src/DTO/"
+      "DTO\\": "src/DTO/",
+      "Tests\\": "tests/"
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.3"
   }
 }

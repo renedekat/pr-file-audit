@@ -35,9 +35,16 @@ This PHP project generates a CSV audit of all files modified across specified Gi
 Edit .env and set your GitHub token:
 `GITHUB_TOKEN=your_personal_access_token`
 
-## Prepare the repositories/PRs list
+## Prepare the list of JIRA Epics
 ```bash  
-  cp ./config/repos_prs.json.example ./config/repos_prs.json
+  cp ./config/epic_keys.json.example ./storage/epic_keys.json
+```
+
+## Prepare the repositories/PRs list
+If you already have a list of pull requests you can use the file below. Or let the extractPullRequestsFromJiraEpics
+script generate it for you instead.
+```bash  
+  cp ./config/repos_prs.json.example ./storage/repos_prs.json
 ```
 
 Edit `./config/repos_prs.json` with your repository names and PR numbers in the following format:
@@ -49,12 +56,13 @@ Edit `./config/repos_prs.json` with your repository names and PR numbers in the 
 ```
 
 ## Usage
-Run the audit script:
+Run the audit scripts:
 ```bash
-    php index.php
+    php extractPullRequestsFromJiraEpics.php #optional if you don't have your PR ids yet
+    php extractFileChangesFromPullRequests.php
 ```
 
-The script will fetch all files changed in the specified PRs and their contributors, then output a CSV file:
+The latter script will fetch all files changed in the specified PRs and their contributors, then output a CSV file:
 
 `files_audit.csv`
 

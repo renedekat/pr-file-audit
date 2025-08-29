@@ -2,7 +2,11 @@
 
 namespace DTO;
 
-class FileAuditCollection implements \ArrayAccess, \IteratorAggregate
+use ArrayIterator;
+use IteratorAggregate;
+use Service\ExporterInterface;
+
+class FileAuditCollection implements IteratorAggregate, DtoCollectionInterface
 {
     /** @var FileAuditDto[] */
     private array $items = [];
@@ -19,20 +23,52 @@ class FileAuditCollection implements \ArrayAccess, \IteratorAggregate
         $this->items[] = $dto;
     }
 
-    public function toArray(): array
+    /**
+     * Build grouped array for JSON export
+     */
+    public function toArrayForJson(): array
     {
-        return $this->items;
+        $result = [];
+        foreach ($this->items as $dto) {
+            $result[$dto->repo][] = $dto->filename;
+        }
+
+        return $result;
     }
 
-    // Implement ArrayAccess
-    public function offsetExists($offset): bool { return isset($this->items[$offset]); }
-    public function offsetGet($offset): mixed { return $this->items[$offset] ?? null; }
-    public function offsetSet($offset, $value): void { $this->items[$offset] = $value; }
-    public function offsetUnset($offset): void { unset($this->items[$offset]); }
-
-    // Implement IteratorAggregate
-    public function getIterator(): \ArrayIterator
+    /**
+     * Build CSV-ready array
+     */
+    public function toArrayForCsv(): array
     {
-        return new \ArrayIterator($this->items);
+        $rows = [];
+
+        // Determine max contributors
+        $maxContributors = 0;
+        foreach ($this->items as $dto) {
+            $maxContributors = max($maxContributors, count($dto->contributors));
+        }
+
+        foreach ($this->items as $dto) {
+            $row = array_merge([$dto->repo, $dto->filename], $dto->contributors);
+            $row = array_pad($row, 2 + $maxContributors, '');
+            $rows[] = $row;
+        }
+
+        // Add header as first row
+        $header = array_merge(['Repo Name', 'File Name'], array_map(fn($i) => "Contributor $i", range(1, $maxContributors)));
+        array_unshift($rows, $header);
+
+        return $rows;
+    }
+
+    public function exportWith(ExporterInterface $exporter): void
+    {
+        $exporter->export($this);
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->items);
     }
 }

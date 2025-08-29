@@ -25,7 +25,8 @@ cache/
 
 # Generated files
 files_audit.csv
-config/repos_prs.json
+storage/epic_keys.json
+storage/repos_prs.json
 
 # Ignore composer PHAR if committed locally
 composer.phar

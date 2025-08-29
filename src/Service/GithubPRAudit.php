@@ -8,21 +8,13 @@ use DTO\FileAuditDto;
 
 class GithubPRAudit
 {
-    private string $token;
     private Client $client;
     private array $repos;
 
-    public function __construct(string $token, array $repos)
+    public function __construct(Client $client, array $repos)
     {
-        $this->token = $token;
+        $this->client = $client;
         $this->repos = $repos;
-        $this->client = new Client([
-            'base_uri' => 'https://api.github.com/',
-            'headers' => [
-                'Authorization' => "token {$this->token}",
-                'Accept' => 'application/vnd.github+json',
-            ],
-        ]);
     }
 
     public function fetchAuditData(): FileAuditCollection
@@ -40,37 +32,40 @@ class GithubPRAudit
 
     private function processPullRequest(string $repoFullName, int $prNumber, FileAuditCollection $collection): void
     {
-        if (!$this->isMerged($repoFullName, $prNumber)) {
+        if (!$this->isMerged(repo: $repoFullName, pr: $prNumber)) {
             return; // Skip unmerged PRs
         }
 
-        $files = $this->getPullRequestFiles($repoFullName, $prNumber);
-        $contributors = $this->getPullRequestContributors($repoFullName, $prNumber);
+        $files = $this->getPullRequestFiles(repo: $repoFullName, pr: $prNumber);
+        $contributors = $this->getPullRequestContributors(repo: $repoFullName, pr: $prNumber);
 
         foreach ($files as $filename) {
-            $collection->add(new FileAuditDto($repoFullName, $filename, $contributors));
-
+            $collection->add(dto: new FileAuditDto(
+                repo: $repoFullName,
+                filename: $filename,
+                contributors: $contributors
+            ));
         }
     }
 
     private function isMerged(string $repo, int $pr): bool
     {
-        $response = $this->client->get("repos/{$repo}/pulls/{$pr}");
-        $prData = json_decode($response->getBody()->getContents(), true);
+        $response = $this->client->get(uri: "repos/{$repo}/pulls/{$pr}");
+        $prData = json_decode(json: $response->getBody()->getContents(), associative: true);
         return !empty($prData['merged']);
     }
 
     private function getPullRequestFiles(string $repo, int $pr): array
     {
-        $response = $this->client->get("repos/{$repo}/pulls/{$pr}/files?per_page=100");
-        $files = json_decode($response->getBody()->getContents(), true);
+        $response = $this->client->get(uri: "repos/{$repo}/pulls/{$pr}/files?per_page=100");
+        $files = json_decode(json: $response->getBody()->getContents(), associative: true);
         return array_column($files, 'filename');
     }
 
     private function getPullRequestContributors(string $repo, int $pr): array
     {
-        $response = $this->client->get("repos/{$repo}/pulls/{$pr}/commits?per_page=100");
-        $commits = json_decode($response->getBody()->getContents(), true);
+        $response = $this->client->get(uri: "repos/{$repo}/pulls/{$pr}/commits?per_page=100");
+        $commits = json_decode(json: $response->getBody()->getContents(), associative: true);
 
         $contributors = [];
         foreach ($commits as $commit) {

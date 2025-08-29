@@ -2,9 +2,9 @@
 
 namespace Service;
 
-use DTO\FileAuditCollection;
+use DTO\DtoCollectionInterface;
 
-class CsvExporter
+class CsvExporter implements ExporterInterface
 {
     private string $filename;
 
@@ -13,32 +13,14 @@ class CsvExporter
         $this->filename = $filename;
     }
 
-    public function export(FileAuditCollection $collection): void
+    public function export(DtoCollectionInterface $collection): void
     {
         $handle = fopen($this->filename, 'w');
 
-        $items = $collection->toArray();
-
-        // Determine max contributors for header
-        $maxContributors = 0;
-        foreach ($items as $dto) {
-            $maxContributors = max($maxContributors, count($dto->contributors));
-        }
-
-        // Header
-        $header = array_merge(['Repo Name', 'File Name'], array_map(fn($i) => "Contributor $i", range(1, $maxContributors)));
-        fputcsv($handle, $header, ',', '"', '\\');
-
-        // Rows
-        foreach ($items as $dto) {
-            $row = array_merge([$dto->repo, $dto->filename], $dto->contributors);
-
-            // Fill empty columns if some files have fewer contributors
-            $row = array_pad($row, 2 + $maxContributors, '');
+        foreach ($collection->toArrayForCsv() as $row) {
             fputcsv($handle, $row, ',', '"', '\\');
         }
 
         fclose($handle);
     }
-
 }
