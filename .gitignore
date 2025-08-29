@@ -24,9 +24,8 @@ tmp/
 cache/
 
 # Generated files
-files_audit.csv
-storage/epic_keys.json
-storage/repos_prs.json
+/storage/**/*
+!/storage/.gitkeep
 
 # Ignore composer PHAR if committed locally
 composer.phar
