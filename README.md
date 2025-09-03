@@ -9,6 +9,7 @@ This PHP project generates a CSV audit of all files modified across specified Gi
 - PHP 8.1 or higher
 - Composer
 - GitHub Personal Access Token (with at least `repo` access for private repositories)
+- Jira API Access Token
 - Git installed
 
 ---
