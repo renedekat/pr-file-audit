@@ -42,6 +42,21 @@ class FileAuditCollectionTest extends TestCase
         $this->assertSame(['Charlie'], $items[1]->contributors);
     }
 
+    public function testAddMergesContributorsAndRemovesDuplicates(): void
+    {
+        $collection = new FileAuditCollection();
+
+        $dto1 = new FileAuditDto('repo1', 'file1.php', ['Alice']);
+        $dto2 = new FileAuditDto('repo1', 'file1.php', ['Alice']);
+
+        $collection->add($dto1);
+        $collection->add($dto2); // should merge contributors into file1.php and unique
+
+        $items = iterator_to_array($collection);
+        $this->assertSame(['Alice'], $items[0]->contributors);
+
+    }
+
     public function testToArrayForJson(): void
     {
         $collection = new FileAuditCollection();

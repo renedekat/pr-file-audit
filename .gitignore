@@ -20,8 +20,10 @@ Thumbs.db
 # Logs and temporary files
 *.log
 *.cache
+infection.json5
 tmp/
 cache/
+coverage/
 
 # Generated files
 /storage/**/*
