@@ -1,6 +1,5 @@
 # Composer dependencies
 /vendor/
-/composer.lock
 
 # Environment variables
 config/.env
