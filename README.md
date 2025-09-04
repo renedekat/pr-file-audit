@@ -1,3 +1,5 @@
+![PHP Tests](https://github.com/renedekat/pr-file-audit/actions/workflows/php.yml/badge.svg)
+
 # PR File Audit Tool
 
 This PHP project generates a CSV audit of all files modified across specified GitHub pull requests, including a list of contributors for each file.
