@@ -1,4 +1,6 @@
 {
+  "name": "renedekat/pr-file-audot",
+  "description": "Generates an audit of all files modified with contributors across specified GitHub pull requests",
   "require": {
     "guzzlehttp/guzzle": "^7.10",
     "vlucas/phpdotenv": "^5.6"
@@ -39,5 +41,6 @@
       "extract-changes": "Extract file changes from PRs",
       "run-all": "Run extract-prs then extract-changes automatically"
     }
-  }
+  },
+  "license": "MIT"
 }
