@@ -1,4 +1,5 @@
-![PHP Tests](https://github.com/renedekat/pr-file-audit/actions/workflows/php.yml/badge.svg)
+![PHP Tests](https://github.com/renedekat/pr-file-audit/actions/workflows/composer.yml/badge.svg)
+![PHP Tests](https://github.com/renedekat/pr-file-audit/actions/workflows/tests.yml/badge.svg)
 
 # PR File Audit Tool
 
